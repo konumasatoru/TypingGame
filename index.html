@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>タイピングアプリ</title>
+</head>
+<body>
+  <h1 id="subject">---</h1>
+  <p id="timer">制限時間：20秒</p>
+  <p id="score">正解数: 0</p>
+  
+  <form name="typing">
+    <input type="text" name="input" autocomplete="off" />
+    <button type="submit" name="btn">送信</button>
+  </form>
+
+  <script>
+    const subject = document.getElementById('subject');
+    const timer = document.getElementById('timer');
+    const score = document.getElementById('score');
+    const form = document.forms.typing;
+    const textList = [
+      'Hello World',
+      'Good',
+      'I love JavaScript',
+      'This is MyApp',
+      'Welcome'
+    ];
+
+    let TIME = 20;
+    let count = 0;
+    let state = true;
+
+    // カウントダウン処理
+    const countdown = setInterval(function() {
+      timer.textContent = '制限時間：' + --TIME + '秒';
+      if (TIME <= 0) finish();
+    }, 1000);
+
+    // 初期化
+    init();
+
+    function init() {
+      const rnd = Math.floor(Math.random() * textList.length);
+      subject.textContent = textList[rnd];
+      form.input.value = '';
+      form.input.focus();
+    }
+
+    // 回答処理
+    form.addEventListener('submit', function(e) {
+      e.preventDefault(); // ページリロードを防ぐ
+      
+      if (!state) return;
+
+      if (form.input.value === subject.textContent) {
+        count++;
+        score.textContent = '正解数: ' + count;
+        init();
+      } else {
+        subject.textContent = '間違いです！';
+        form.input.value = '';
+        setTimeout(init, 1000);
+      }
+    });
+
+    // Enterキーでも送信可能にする
+    form.input.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault(); // ページリロードを防ぐ
+        form.btn.click(); // ボタンをクリックしたのと同じ動作
+      }
+    });
+
+    // 終了処理
+    function finish() {
+      clearInterval(countdown);
+      subject.textContent = '正解数は' + count + '個でした！';
+      state = false;
+    }
+  </script>
+</body>
+</html>

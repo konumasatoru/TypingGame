@@ -4,16 +4,87 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>タイピングアプリ</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background-color: #ffffff;
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      width: 90%;
+      max-width: 500px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      color: #5c67f2;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      font-size: 1.2rem;
+      margin: 0.5rem 0;
+    }
+
+    form {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 0.8rem;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    input[type="text"]:focus {
+      border-color: #5c67f2;
+    }
+
+    button {
+      background-color: #5c67f2;
+      color: #fff;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #4b56c0;
+    }
+  </style>
 </head>
 <body>
-  <h1 id="subject">---</h1>
-  <p id="timer">制限時間：20秒</p>
-  <p id="score">正解数: 0</p>
-  
-  <form name="typing">
-    <input type="text" name="input" autocomplete="off" />
-    <button type="submit" name="btn">送信</button>
-  </form>
+
+  <div class="container">
+    <h1 id="subject">---</h1>
+    <p id="timer">制限時間：30秒</p>
+    <p id="score">正解数: 0</p>
+    
+    <form name="typing">
+      <input type="text" name="input" autocomplete="off" />
+      <button type="submit" name="btn">送信</button>
+    </form>
+  </div>
 
   <script>
     const subject = document.getElementById('subject');
@@ -21,14 +92,10 @@
     const score = document.getElementById('score');
     const form = document.forms.typing;
     const textList = [
-      'Hello World',
-      'Good',
-      'I love JavaScript',
-      'This is MyApp',
-      'Welcome'
+      'OelTabuu',
     ];
 
-    let TIME = 20;
+    let TIME = 30;
     let count = 0;
     let state = true;
 
@@ -56,10 +123,10 @@
 
       if (form.input.value === subject.textContent) {
         count++;
-        score.textContent = '正解数: ' + count;
+        score.textContent = 'タブーの人数: ' + count;
         init();
       } else {
-        subject.textContent = '間違いです！';
+        subject.textContent = '間違いタブー！！！';
         form.input.value = '';
         setTimeout(init, 1000);
       }
@@ -76,7 +143,7 @@
     // 終了処理
     function finish() {
       clearInterval(countdown);
-      subject.textContent = '正解数は' + count + '個でした！!!!!!!!!!';
+      subject.textContent = 'タブーの人数は' + count + '人でした！';
       state = false;
     }
   </script>

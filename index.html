@@ -24,6 +24,7 @@
       text-align: center;
       width: 90%;
       max-width: 500px;
+      position: relative;
     }
 
     h1 {
@@ -71,14 +72,44 @@
     button:hover {
       background-color: #4b56c0;
     }
+
+    /* キャラクターのスタイル */
+    .character {
+      width: 100px;
+      height: 100px;
+      margin: 1rem auto;
+      background-size: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .happy {
+      background-image: url('./images/your-image.png');
+    }
+
+    .sad {
+      background-image: url('./images/your-image.png');
+    }
+
+    .shake {
+      animation: shake 0.3s ease;
+    }
+
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+      100% { transform: translateX(0); }
+    }
   </style>
 </head>
 <body>
 
   <div class="container">
+    <div id="character" class="character happy"></div>
     <h1 id="subject">---</h1>
-    <p id="timer">制限時間：30秒</p>
-    <p id="score">正解数: 0</p>
+    <p id="timer">制限時間：20秒</p>
+    <p id="score">タブーの人数: 0</p>
     
     <form name="typing">
       <input type="text" name="input" autocomplete="off" />
@@ -90,12 +121,14 @@
     const subject = document.getElementById('subject');
     const timer = document.getElementById('timer');
     const score = document.getElementById('score');
+    const character = document.getElementById('character');
     const form = document.forms.typing;
+
     const textList = [
-      'OelTabuu',
+      'OelTabuu'
     ];
 
-    let TIME = 30;
+    let TIME = 20;
     let count = 0;
     let state = true;
 
@@ -113,21 +146,33 @@
       subject.textContent = textList[rnd];
       form.input.value = '';
       form.input.focus();
+
+      // 表情リセット
+      character.classList.remove('sad', 'shake');
+      character.classList.add('happy');
     }
 
     // 回答処理
     form.addEventListener('submit', function(e) {
       e.preventDefault(); // ページリロードを防ぐ
-      
+
       if (!state) return;
 
       if (form.input.value === subject.textContent) {
         count++;
-        score.textContent = 'タブーの人数: ' + count;
+        score.textContent = '正解タブー: ' + count;
+
+        // 成功したらキャラクターが喜ぶ
+        character.classList.remove('sad');
+        character.classList.add('happy');
         init();
       } else {
-        subject.textContent = '間違いタブー！！！';
+        // 間違ったらキャラクターが悲しむ
+        subject.textContent = '間違いタブー！';
+        character.classList.remove('happy');
+        character.classList.add('sad', 'shake');
         form.input.value = '';
+
         setTimeout(init, 1000);
       }
     });
@@ -145,6 +190,15 @@
       clearInterval(countdown);
       subject.textContent = 'タブーの人数は' + count + '人でした！';
       state = false;
+
+      // 最終結果でキャラクターが反応
+      if (count >= 5) {
+        character.classList.remove('sad');
+        character.classList.add('happy');
+      } else {
+        character.classList.remove('happy');
+        character.classList.add('sad');
+      }
     }
   </script>
 </body>

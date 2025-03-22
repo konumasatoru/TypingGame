@@ -72,45 +72,15 @@
     button:hover {
       background-color: #4b56c0;
     }
-
-    /* キャラクターのスタイル */
-    .character {
-      width: 100px;
-      height: 100px;
-      margin: 1rem auto;
-      background-size: cover;
-      transition: transform 0.3s ease;
-    }
-
-    .happy {
-      background-image: url('./images/your-image.png');
-    }
-
-    .sad {
-      background-image: url('./images/your-image.png');
-    }
-
-    .shake {
-      animation: shake 0.3s ease;
-    }
-
-    @keyframes shake {
-      0% { transform: translateX(0); }
-      25% { transform: translateX(-5px); }
-      50% { transform: translateX(5px); }
-      75% { transform: translateX(-5px); }
-      100% { transform: translateX(0); }
-    }
   </style>
 </head>
 <body>
 
   <div class="container">
-    <div id="character" class="character happy"></div>
     <h1 id="subject">---</h1>
     <p id="timer">制限時間：20秒</p>
-    <p id="score">タブーの人数: 0</p>
-    
+    <p id="score">正解数: 0</p>
+
     <form name="typing">
       <input type="text" name="input" autocomplete="off" />
       <button type="submit" name="btn">送信</button>
@@ -118,90 +88,74 @@
   </div>
 
   <script>
-    const subject = document.getElementById('subject');
-    const timer = document.getElementById('timer');
-    const score = document.getElementById('score');
-    const character = document.getElementById('character');
-    const form = document.forms.typing;
+    document.addEventListener("DOMContentLoaded", function() {
+      const subject = document.getElementById('subject');
+      const timer = document.getElementById('timer');
+      const score = document.getElementById('score');
+      const form = document.forms.typing;
 
-    const textList = [
-      'OelTabuu', 'オエルタブー', 'おえるたぶー'
-    ];
+      let TIME = 20;
+      let count = 0;
+      let state = true;
 
-    let TIME = 20;
-    let count = 0;
-    let state = true;
+      // フォールバック用の単語リスト（APIが使えない場合に使用）
+      const fallbackWords = ["猫", "犬", "空", "海", "山", "風", "星", "雨", "夢", "花", "タブー"];
 
-    // カウントダウン処理
-    const countdown = setInterval(function() {
-      timer.textContent = '制限時間：' + --TIME + '秒';
-      if (TIME <= 0) finish();
-    }, 1000);
+      // 単語をAPIから取得する関数
+      async function getRandomWord() {
+          try {
+              const response = await fetch("https://cors-anywhere.herokuapp.com/https://random-word-api.herokuapp.com/word?lang=ja");
+              const data = await response.json();
+              if (data && data.length > 0) {
+                  return data[0]; // APIの結果が配列なので、最初の単語を取得
+              }
+          } catch (error) {
+              console.error("単語の取得に失敗:", error);
+          }
+          // APIが失敗したらフォールバック単語を返す
+          return fallbackWords[Math.floor(Math.random() * fallbackWords.length)];
+      }
 
-    // 初期化
-    init();
+      // ゲームの初期化
+      async function init() {
+          const word = await getRandomWord();
+          subject.textContent = word; // 取得した単語をセット
+          form.input.value = '';
+          form.input.focus();
+      }
 
-    function init() {
-      const rnd = Math.floor(Math.random() * textList.length);
-      subject.textContent = textList[rnd];
-      form.input.value = '';
-      form.input.focus();
+      // カウントダウン処理
+      const countdown = setInterval(function() {
+          timer.textContent = '制限時間：' + --TIME + '秒';
+          if (TIME <= 0) finish();
+      }, 1000);
 
-      // 表情リセット
-      character.classList.remove('sad', 'shake');
-      character.classList.add('happy');
-    }
+      init(); // 最初の単語を設定
 
-    // 回答処理
-    form.addEventListener('submit', function(e) {
-      e.preventDefault(); // ページリロードを防ぐ
+      // 回答処理
+      form.addEventListener('submit', function(e) {
+          e.preventDefault();
 
-      if (!state) return;
+          if (!state) return;
 
-      if (form.input.value === subject.textContent) {
-        count++;
-        score.textContent = '正解タブー: ' + count;
+          if (form.input.value === subject.textContent) {
+              count++;
+              score.textContent = '正解数: ' + count;
+              init(); // 新しい単語を取得
+          } else {
+              subject.textContent = '間違い！';
+              form.input.value = '';
+              setTimeout(init, 1000);
+          }
+      });
 
-        // 成功したらキャラクターが喜ぶ
-        character.classList.remove('sad');
-        character.classList.add('happy');
-        init();
-      } else {
-        // 間違ったらキャラクターが悲しむ
-        subject.textContent = '間違いタブー！';
-        character.classList.remove('happy');
-        character.classList.add('sad', 'shake');
-        form.input.value = '';
-
-        setTimeout(init, 1000);
+      // 終了処理
+      function finish() {
+          clearInterval(countdown);
+          subject.textContent = '結果: 正解数は ' + count + ' でした！';
+          state = false;
       }
     });
-
-    // Enterキーでも送信可能にする
-    form.input.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') {
-        e.preventDefault(); // ページリロードを防ぐ
-        form.btn.click(); // ボタンをクリックしたのと同じ動作
-      }
-    });
-
-    // 終了処理
-    function finish() {
-      clearInterval(countdown);
-      subject.textContent = 'タブーの人数は' + count + '人でした！';
-      state = false;
-
-      // 最終結果でキャラクターが反応
-      if (count >= 5) {
-        character.classList.remove('sad');
-        character.classList.add('happy');
-      } else {
-        character.classList.remove('happy');
-        character.classList.add('sad');
-      }
-    }
   </script>
 </body>
 </html>
-
-<!-- タイピングの文字を自動で作ってくれる機能を追加したい -->
